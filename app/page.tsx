@@ -1,7 +1,5 @@
-import Image from "next/image";
+import PokemonTypes from "./PokemonTypes";
 
-export default function Home() {
-  return (
-    <p>home</p>
-  );
+export default function App() {
+  return <PokemonTypes />;
 }
