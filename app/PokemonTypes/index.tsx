@@ -93,14 +93,13 @@ const PokemonTypes = () => {
   const [offset, setOffset] = useState(0);
   const { data, isLoading, isError } = useQuery({
     queryFn: async () => await getPokemonsTypesList({ offset }),
-    queryKey: ["type", offset],
+    queryKey: ["pokemonTypes", offset],
   });
   const { results, count, next, previous } = data || {};
-  
+
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <div>Sorry There was an Error</div>;
-  
-  
+
   const handleNextPage = async () => {
     if (next) {
       const nextOffset = parseInt(next.split("offset=")[1].split("&")[0]);
@@ -121,18 +120,19 @@ const PokemonTypes = () => {
     <Container>
       <PageTiltle>Pokemon Types</PageTiltle>
       <Grid>
-        {results?.map(
-          (type: { name: string; url: string }) => {
-            const id = type.url.split("/")[6]
-            return <Card key={type.name}>
+        {results?.map((type: { name: string; url: string }) => {
+          const id = type.url.split("/")[6];
+          return (
+            <Card key={type.name}>
               <PokemonName>{type.name.toUpperCase()}</PokemonName>
               <Link
                 className="rounded-xl border-solid border-blue-500 border-2 px-8 py-4 text-[1.25rem]"
-                href={`/${type.name}/${id}`}
+                href={`/${type.name}/${id}/`}
               >
                 View Pokemons
               </Link>
             </Card>
+          );
         })}
       </Grid>
 
@@ -149,6 +149,6 @@ const PokemonTypes = () => {
       </Pagination>
     </Container>
   );
-}
+};
 
 export default PokemonTypes;

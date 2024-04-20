@@ -1,5 +1,3 @@
-"use client";
-
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import styled from "styled-components";
@@ -96,12 +94,10 @@ const PokemonList = ({
 }) => {
   const [offset, setOffset] = useState(0);
   const { data, isLoading, isError } = useQuery({
-    queryFn: async () =>
-      await getPokemonsList({ typeId: typeInfo.typeId }),
-    queryKey: ["type"],
+    queryFn: async () => await getPokemonsList({ typeId: typeInfo.typeId }),
+    queryKey: ["pokemons", typeInfo.typeId],
   });
   const { pokemon } = data || {};
-
 
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <div>Sorry There was an Error</div>;
@@ -116,42 +112,45 @@ const PokemonList = ({
   const slicedPokemon = pokemon.slice(offset, offset + 12);
 
   return (
-    <Container>
-      <PageTiltle>{typeInfo.typeName.toUpperCase()} Pokemons</PageTiltle>
-      <Grid>
-        {slicedPokemon?.map((pokemon: any) => {
-          return (
-            <Card key={pokemon.pokemon.name}>
-              <PokemonName>{pokemon.pokemon.name.toUpperCase()}</PokemonName>
-              <Link
-                className="rounded-xl border-solid border-blue-500 border-2 px-8 py-4 text-[1.25rem]"
-                href={`/`}
-              >
-                View Details
-              </Link>
-            </Card>
-          );
-        })}
-      </Grid>
+    !isLoading && (
+      <Container>
+        <PageTiltle>{typeInfo.typeName.toUpperCase()} Pokemons</PageTiltle>
+        <Grid>
+          {slicedPokemon?.map((pokemon: any) => {
+            const pokemonId = pokemon.pokemon.url.split("/")[6];
+            return (
+              <Card key={pokemon.pokemon.name}>
+                <PokemonName>{pokemon.pokemon.name.toUpperCase()}</PokemonName>
+                <Link
+                  className="rounded-xl border-solid border-blue-500 border-2 px-8 py-4 text-[1.25rem]"
+                  href={`/${typeInfo.typeName}/${typeInfo.typeId}/pokemon/${pokemonId}`}
+                >
+                  View Details
+                </Link>
+              </Card>
+            );
+          })}
+        </Grid>
 
-      <Pagination>
-      <PaginationButton
-          onClick={handlePreviousPage}
-          disabled={offset === 0}
-        >
-          Previous
-        </PaginationButton>
-        <PageInfo>
-          Page {offset / 12 + 1} of {Math.ceil(pokemon.length / 12)}
-        </PageInfo>
-        <PaginationButton
-          onClick={handleNextPage}
-          disabled={offset + 12 >= pokemon.length}
-        >
-          Next
-        </PaginationButton>
-      </Pagination>
-    </Container>
+        <Pagination>
+          <PaginationButton
+            onClick={handlePreviousPage}
+            disabled={offset === 0}
+          >
+            Previous
+          </PaginationButton>
+          <PageInfo>
+            Page {offset / 12 + 1} of {Math.ceil(pokemon.length / 12)}
+          </PageInfo>
+          <PaginationButton
+            onClick={handleNextPage}
+            disabled={offset + 12 >= pokemon.length}
+          >
+            Next
+          </PaginationButton>
+        </Pagination>
+      </Container>
+    )
   );
 };
 
