@@ -1,3 +1,5 @@
+"use client";
+
 import PokemonList from "./PokemonList";
 
 const TypeId = ({ params }: { params: { typeName: string, typeId: string } }) => {
