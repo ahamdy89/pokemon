@@ -1,4 +1,4 @@
-export default async function getPokemonsTypesList({offset = 0}:{offset:number}) {
+export default async function getPokemonsList({typeId}:{typeId: string}) {
     const options = {
     method: "GET",
     headers: {
@@ -6,7 +6,7 @@ export default async function getPokemonsTypesList({offset = 0}:{offset:number})
     },
   };
 
-  const response = await fetch(`https://pokeapi.co/api/v2/type?limit=8&offset=${offset}`, options)
+  const response = await fetch(`https://pokeapi.co/api/v2/type/${typeId}`, options)
     .then((response) => response.json())
     .catch((err) => console.error(err));
 

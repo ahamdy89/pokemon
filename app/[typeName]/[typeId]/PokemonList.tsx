@@ -1,10 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import getPokemonsTypesList from "../api/listTypes";
 import { useState } from "react";
 import styled from "styled-components";
 import Link from "next/link";
+import getPokemonsList from "@/app/api/listPokemons";
 
 const Container = styled.div`
   display: flex;
@@ -89,66 +89,70 @@ const PaginationButton = styled.button`
   }
 `;
 
-const PokemonTypes = () => {
+const PokemonList = ({
+  typeInfo,
+}: {
+  typeInfo: { typeName: string; typeId: string };
+}) => {
   const [offset, setOffset] = useState(0);
   const { data, isLoading, isError } = useQuery({
-    queryFn: async () => await getPokemonsTypesList({ offset }),
-    queryKey: ["type", offset],
+    queryFn: async () =>
+      await getPokemonsList({ typeId: typeInfo.typeId }),
+    queryKey: ["type"],
   });
-  const { results, count, next, previous } = data || {};
-  
+  const { pokemon } = data || {};
+
+
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <div>Sorry There was an Error</div>;
-  
-  
+
   const handleNextPage = async () => {
-    if (next) {
-      const nextOffset = parseInt(next.split("offset=")[1].split("&")[0]);
-      setOffset(nextOffset);
-    }
+    setOffset((prevOffset) => prevOffset + 12);
   };
 
   const handlePreviousPage = async () => {
-    if (previous) {
-      const previousOffset = parseInt(
-        previous.split("offset=")[1].split("&")[0]
-      );
-      setOffset(previousOffset);
-    }
+    setOffset((prevOffset) => Math.max(0, prevOffset - 12));
   };
+  const slicedPokemon = pokemon.slice(offset, offset + 12);
 
   return (
     <Container>
-      <PageTiltle>Pokemon Types</PageTiltle>
+      <PageTiltle>{typeInfo.typeName.toUpperCase()} Pokemons</PageTiltle>
       <Grid>
-        {results?.map(
-          (type: { name: string; url: string }) => {
-            const id = type.url.split("/")[6]
-            return <Card key={type.name}>
-              <PokemonName>{type.name.toUpperCase()}</PokemonName>
+        {slicedPokemon?.map((pokemon: any) => {
+          return (
+            <Card key={pokemon.pokemon.name}>
+              <PokemonName>{pokemon.pokemon.name.toUpperCase()}</PokemonName>
               <Link
                 className="rounded-xl border-solid border-blue-500 border-2 px-8 py-4 text-[1.25rem]"
-                href={`/${type.name}/${id}`}
+                href={`/`}
               >
-                View Pokemons
+                View Details
               </Link>
             </Card>
+          );
         })}
       </Grid>
 
       <Pagination>
-        <PaginationButton disabled={!previous} onClick={handlePreviousPage}>
+      <PaginationButton
+          onClick={handlePreviousPage}
+          disabled={offset === 0}
+        >
           Previous
         </PaginationButton>
         <PageInfo>
-          Page {offset / 8 + 1} of {Math.ceil(count / 8)}
+          Page {offset / 12 + 1} of {Math.ceil(pokemon.length / 12)}
         </PageInfo>
-        <PaginationButton disabled={!next} onClick={handleNextPage}>
+        <PaginationButton
+          onClick={handleNextPage}
+          disabled={offset + 12 >= pokemon.length}
+        >
           Next
         </PaginationButton>
       </Pagination>
     </Container>
   );
-}
+};
 
-export default PokemonTypes;
+export default PokemonList;
